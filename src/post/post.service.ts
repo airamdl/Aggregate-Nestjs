@@ -1,11 +1,41 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
+import { PostAggregateSchema } from './models/post.aggregate.model';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { CreatePostAggregateDto } from './dto/create-post.dto';
+import { UpdatePostAggregateDto } from './dto/update-post.dto';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { PostRootEntity } from './models/post.root-entity.model';
 
 @Injectable()
 export class PostService {
-  create(createPostDto: CreatePostDto) {
-    return 'This action adds a new post';
+
+  constructor(
+    @InjectModel(PostAggregateSchema.name) private postAggregateModel: Model<PostAggregateSchema>,
+    @InjectModel(PostRootEntity.name) private postRootEntityModel: Model<PostRootEntity>
+  ) { }
+
+  async createAggregate({ postRootEntity, ...createPostAggregateDto }: CreatePostAggregateDto) {
+    // With the spread operator we take the other remaining attributes
+    try {
+      console.log(postRootEntity, createPostAggregateDto);
+
+      if (postRootEntity) {
+        const createdRootEntity = new this.postRootEntityModel(postRootEntity)
+        const savedRootEntity = await createdRootEntity.save()
+        const createdAggregate = new this.postAggregateModel({
+          ...createPostAggregateDto,
+          postRootEntity: savedRootEntity._id,
+        });
+
+        return await createdAggregate.save()
+      } else {
+        const createdAggregate = new this.postAggregateModel({ ...createPostAggregateDto })
+
+      }
+
+    } catch (error) {
+      throw new BadRequestException({ 'error': error })
+    }
   }
 
   findAll() {
@@ -16,7 +46,7 @@ export class PostService {
     return `This action returns a #${id} post`;
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
+  update(id: number, updatePostDto: UpdatePostAggregateDto) {
     return `This action updates a #${id} post`;
   }
 

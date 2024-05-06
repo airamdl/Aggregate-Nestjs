@@ -1,7 +1,7 @@
 import { CreatePostRootEntityDto } from "./create-post-rootEntity.dto";
 
-export class CreatePostDto {
+export class CreatePostAggregateDto {
     name: string;
 
-    rootEntity: CreatePostRootEntityDto;
+    postRootEntity: CreatePostRootEntityDto;
 }
