@@ -1,9 +1,9 @@
 import { Prop, SchemaFactory, Schema } from "@nestjs/mongoose";
-import { IsObject, IsOptional, IsString } from "class-validator";
-import { RootEntity } from "./root-entity.model";
+import { PostRootEntity } from "./post.root-entity.model";
 import { HydratedDocument } from "mongoose";
 import * as mongoose from 'mongoose';
 import { Type } from "class-transformer";
+import { IsOptional, IsString } from 'class-validator';
 
 export type AggregateDocument = HydratedDocument<PostAggregateSchema>;
 @Schema()
